@@ -78,6 +78,11 @@
     letter-spacing:.02em;
   }
 
+
+  h1:empty{
+    display:none;
+  }
+
   .subtitle{
     position:relative;
     z-index:1;
@@ -632,7 +637,7 @@
 <body>
 <div class="wrap" id="capture">
   <section class="hero">
-    <h1>楽天ブックス オンラインラッキードロー 抽選結果</h1>
+    <h1 id="collageTitle" aria-label="画像タイトル（任意）"></h1>
     <div class="subtitle">OCHA NORMA 6thシングル<br>『ダントツで愛して／また、あなたに恋焦がれているんだ』</div>
   </section>
 
@@ -652,14 +657,15 @@
     <input id="fileInput" type="file" accept="application/json" hidden>
     <button id="reset" class="danger">チェック全解除</button>
     <button id="resetAll" class="danger">全部初期化</button>
-    <select id="sort">
-      <option value="prize">賞順でソート</option>
-      <option value="prizeMember">賞順＋メンバー順</option>
-      <option value="member">メンバー名順</option>
+    <select id="sort" aria-label="並べ替え順">
+      <option value="prizeItemNo" selected>レアリティ ＞ 商品名 ＞ 序列</option>
+      <option value="prizeMember">レアリティ ＞ メンバー順</option>
+      <option value="member">メンバー順</option>
       <option value="checked">未交換を上に表示</option>
       <option value="added">追加順で表示</option>
     </select>
-    <div class="hint">並べ替え・保存・投稿ができます</div>
+    <button id="applySort" class="secondary">ソート適用</button>
+    <div class="hint">並べ替えは「ソート適用」を押すと反映されます</div>
   </section>
 
   <section class="addbox" data-html2canvas-ignore="true">
@@ -673,7 +679,7 @@
   <section class="addbox" data-html2canvas-ignore="true">
     <div class="add-title">交換用テキスト</div>
     <button id="copyUncheckedText" class="secondary">テキストをコピー</button>
-    <button id="postToTwitter" class="secondary">Twitterに投稿</button>
+    <button id="postToTwitter" class="secondary">Xに投稿</button>
     <textarea id="uncheckedText" class="tradeTextarea" placeholder="ガチャ名＋未チェックのアイテムがここに出ます"></textarea>
   </section>
 
@@ -892,7 +898,7 @@ function render(){
         rows = rows.filter(r=>r.id!==id);
         delete checked[id];
         saveAll();
-        sortRows(document.getElementById("sort").value);
+        refreshRowsWithoutSorting();
       }
     });
   });
@@ -916,8 +922,13 @@ function sortRows(mode){
   } else if(mode === "added"){
     viewRows.sort((a,b)=> Number(a.createdAt)-Number(b.createdAt));
   } else {
-    viewRows.sort((a,b)=> a.rank-b.rank || Number(a.no)-Number(b.no));
+    viewRows.sort((a,b)=> a.rank-b.rank || String(a.item || "").localeCompare(String(b.item || ""), "ja") || Number(a.no)-Number(b.no));
   }
+  render();
+}
+
+function refreshRowsWithoutSorting(){
+  viewRows = [...rows];
   render();
 }
 
@@ -953,7 +964,7 @@ function addRow(){
 
   document.getElementById("addQty").value = 1;
   saveAll();
-  sortRows(document.getElementById("sort").value);
+  refreshRowsWithoutSorting();
 }
 
 function editRow(id){
@@ -977,7 +988,7 @@ function editRow(id){
   r.costume = costume.trim() || r.costume;
   r.memo = memo.trim();
   saveAll();
-  sortRows(document.getElementById("sort").value);
+  refreshRowsWithoutSorting();
 }
 
 
@@ -1293,13 +1304,13 @@ document.getElementById("toggleMemoMask").addEventListener("click", ()=>{
 });
 
 document.getElementById("addOne").addEventListener("click", addRow);
-document.getElementById("sort").addEventListener("change", e=>sortRows(e.target.value));
+document.getElementById("applySort").addEventListener("click", ()=>sortRows(document.getElementById("sort").value));
 
 document.getElementById("reset").addEventListener("click", ()=>{
   if(confirm("チェックを全部外しますか？")){
     checked = {};
     saveAll();
-    sortRows(document.getElementById("sort").value);
+    refreshRowsWithoutSorting();
   }
 });
 
@@ -1323,10 +1334,10 @@ document.getElementById("resetAll").addEventListener("click", ()=>{
   memoMaskVisible = false;
   viewRows = [...rows];
 
-  document.getElementById("sort").value = "prize";
+  document.getElementById("sort").value = "prizeItemNo";
   applyMemoMaskState();
   saveAll();
-  sortRows("prize");
+  refreshRowsWithoutSorting();
 
   alert("初期化しました。");
 });
@@ -1363,7 +1374,7 @@ document.getElementById("fileInput").addEventListener("change", async e=>{
       r.memo = r.memo || "";
     });
     saveAll();
-    sortRows(document.getElementById("sort").value);
+    refreshRowsWithoutSorting();
   }catch(err){
     alert("読み込みに失敗しました。JSONファイルを確認してください。");
   }
@@ -1431,7 +1442,7 @@ document.getElementById("savePngMosaic").addEventListener("click", ()=>{
 
 initSelects();
 applyMemoMaskState();
-sortRows("prize");
+refreshRowsWithoutSorting();
 </script>
 </body>
 </html>
