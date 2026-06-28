@@ -1056,6 +1056,87 @@ function badgeColor(prize){
   return "#6b7280";
 }
 
+function openPreviewWindow(title){
+  const win = window.open("", "_blank");
+  if(!win){
+    alert("新しいタブを開けませんでした。ポップアップブロックを確認してください。");
+    return null;
+  }
+  win.document.write(`<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>${title}</title>
+<style>
+  body{
+    margin:0;
+    font-family: system-ui, -apple-system, "Segoe UI", "Noto Sans JP", Meiryo, sans-serif;
+    background:#f6f1ea;
+    color:#1f2933;
+  }
+  .wrap{
+    max-width:1200px;
+    margin:0 auto;
+    padding:20px 14px 36px;
+  }
+  .card{
+    background:#fff;
+    border:1px solid #e5d8c7;
+    border-radius:24px;
+    padding:16px;
+    box-shadow:0 10px 30px rgba(31,41,51,.08);
+  }
+  h1{
+    margin:0 0 10px;
+    font-size:22px;
+    color:#d71920;
+  }
+  p{
+    margin:0 0 14px;
+    color:#64748b;
+    line-height:1.6;
+    font-size:14px;
+  }
+  img{
+    display:block;
+    width:100%;
+    height:auto;
+    border-radius:16px;
+    background:#fff;
+  }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <h1>${title}</h1>
+      <p>この画面に画像を表示しています。必要に応じて端末の共有・保存機能を使ってください。</p>
+      <img id="previewImage" alt="preview">
+    </div>
+  </div>
+</body>
+</html>`);
+  win.document.close();
+  return win;
+}
+
+function showImageInPreviewWindow(previewWindow, dataUrl, title){
+  if(!previewWindow) return;
+  try{
+    previewWindow.document.title = title;
+    const img = previewWindow.document.getElementById("previewImage");
+    if(img){
+      img.src = dataUrl;
+      img.alt = title;
+    }else{
+      previewWindow.location.href = dataUrl;
+    }
+  }catch(err){
+    previewWindow.location.href = dataUrl;
+  }
+}
+
 function drawTextLines(ctx, text, x, y, maxWidth, lineHeight, maxLines){
   const lines = wrapCanvasText(ctx, text, maxWidth).slice(0, maxLines || 99);
   lines.forEach((line, i) => ctx.fillText(line, x, y + i * lineHeight));
@@ -1067,6 +1148,9 @@ async function saveUncheckedImage(){
     alert("未チェックのアイテムはありません。");
     return;
   }
+
+  const previewWindow = openPreviewWindow("未チェック景品画像");
+  if(!previewWindow) return;
 
   const scale = 2;
   const W = 1080;
@@ -1170,10 +1254,8 @@ async function saveUncheckedImage(){
     });
   });
 
-  const a = document.createElement("a");
-  a.href = canvas.toDataURL("image/png");
-  a.download = "ocha_norma_unchecked_prizes_only.png";
-  a.click();
+  const dataUrl = canvas.toDataURL("image/png");
+  showImageInPreviewWindow(previewWindow, dataUrl, "未チェック景品画像");
 }
 
 document.getElementById("saveUncheckedPng").addEventListener("click", ()=>{
@@ -1288,6 +1370,10 @@ document.getElementById("fileInput").addEventListener("change", async e=>{
 });
 
 async function saveImage({mosaicMemo = false} = {}){
+  const title = mosaicMemo ? "メモを隠した画像" : "画像プレビュー";
+  const previewWindow = openPreviewWindow(title);
+  if(!previewWindow) return;
+
   const target = document.getElementById("capture");
 
   document.querySelectorAll(".memoInput").forEach(input=>{
@@ -1308,10 +1394,8 @@ async function saveImage({mosaicMemo = false} = {}){
   document.querySelectorAll("[data-memo-print]").forEach(span=>span.remove());
   document.querySelectorAll(".memoInput").forEach(input=>input.style.display = "");
 
-  const a = document.createElement("a");
-  a.href = canvas.toDataURL("image/png");
-  a.download = mosaicMemo ? "ocha_norma_lucky_draw_checked_memo_hidden.png" : "ocha_norma_lucky_draw_checked.png";
-  a.click();
+  const dataUrl = canvas.toDataURL("image/png");
+  showImageInPreviewWindow(previewWindow, dataUrl, title);
 }
 
 document.getElementById("savePng").addEventListener("click", ()=>{
