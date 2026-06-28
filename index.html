@@ -6,63 +6,324 @@
 <title>OCHA NORMA 抽選結果 交換チェックアプリ</title>
 <style>
   :root{
-    --bg:#fffdf8; --card:#fff4df; --line:#ded7ca; --ink:#1f2933; --muted:#55606a;
-    --red:#d71920; --gold:#b88a2f; --blue:#4d85c5; --orange:#c56635; --green:#2e9d49; --pink:#d45c8d; --gray:#6b7280;
+    --bg:#fff8f1;
+    --bg2:#fffdf9;
+    --surface:#ffffff;
+    --surface-soft:#fff4df;
+    --line:#eadcc8;
+    --line-strong:#d6c7b7;
+    --ink:#1f2933;
+    --muted:#64748b;
+    --red:#d71920;
+    --gold:#b88a2f;
+    --blue:#4d85c5;
+    --orange:#c56635;
+    --green:#2e9d49;
+    --pink:#d45c8d;
+    --gray:#6b7280;
+    --shadow:0 12px 32px rgba(31,41,51,.08);
+    --shadow-soft:0 6px 18px rgba(31,41,51,.06);
   }
+
   *{box-sizing:border-box}
+
   body{
-    margin:0; background:var(--bg); color:var(--ink);
+    margin:0;
+    color:var(--ink);
     font-family: system-ui, -apple-system, "Segoe UI", "Noto Sans JP", "Hiragino Kaku Gothic ProN", Meiryo, sans-serif;
+    background:
+      radial-gradient(circle at 12% 0%, rgba(255,224,169,.58), transparent 32%),
+      radial-gradient(circle at 88% 8%, rgba(255,210,218,.42), transparent 30%),
+      linear-gradient(180deg, var(--bg), var(--bg2) 44%, #ffffff);
   }
-  .wrap{max-width:1240px; margin:0 auto; padding:18px 14px 40px}
+
+  .wrap{
+    max-width:1240px;
+    margin:0 auto;
+    padding:22px 16px 44px;
+  }
+
   .hero{
-    border:2px solid #f0d7a5; background:var(--card); border-radius:22px;
-    padding:20px 24px; margin-bottom:14px;
+    position:relative;
+    overflow:hidden;
+    border:1px solid #efd0a0;
+    background:
+      linear-gradient(135deg, rgba(255,244,223,.98), rgba(255,255,255,.92)),
+      radial-gradient(circle at 90% 12%, rgba(215,25,32,.11), transparent 26%);
+    border-radius:28px;
+    padding:26px 30px;
+    margin-bottom:16px;
+    box-shadow:var(--shadow);
   }
-  h1{font-size:clamp(22px,3.2vw,36px); color:var(--red); margin:0 0 10px; line-height:1.25}
-  .subtitle{font-weight:800; font-size:clamp(15px,2vw,22px); line-height:1.55}
-  .cards{display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin:14px 0}
-  .card{border:1.5px solid #e2d8c7; border-radius:18px; padding:14px 18px; background:#fff}
-  .card b{display:block; color:var(--muted); margin-bottom:4px}
-  .card span{font-size:22px; font-weight:900}
+
+  .hero::after{
+    content:"";
+    position:absolute;
+    right:-70px;
+    top:-90px;
+    width:240px;
+    height:240px;
+    border-radius:50%;
+    background:rgba(255,255,255,.42);
+    border:28px solid rgba(255,228,180,.48);
+  }
+
+  h1{
+    position:relative;
+    z-index:1;
+    font-size:clamp(23px,3.1vw,38px);
+    color:var(--red);
+    margin:0 0 10px;
+    line-height:1.22;
+    letter-spacing:.02em;
+  }
+
+  .subtitle{
+    position:relative;
+    z-index:1;
+    font-weight:850;
+    font-size:clamp(15px,2vw,22px);
+    line-height:1.55;
+  }
+
+  .cards{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:12px;
+    margin:16px 0;
+  }
+
+  .card{
+    border:1px solid rgba(226,216,199,.9);
+    border-radius:22px;
+    padding:16px 18px;
+    background:#fff;
+    box-shadow:var(--shadow-soft);
+  }
+
+  .card b{
+    display:block;
+    color:var(--muted);
+    margin-bottom:5px;
+    font-size:13px;
+    letter-spacing:.06em;
+  }
+
+  .card span{
+    font-size:clamp(19px,2vw,24px);
+    font-weight:950;
+    line-height:1.25;
+  }
+
   .toolbar, .addbox{
-    display:flex; gap:10px; flex-wrap:wrap; align-items:center;
-    background:#f4f7fb; border:1px solid #d7dde6; border-radius:18px; padding:12px; margin-bottom:12px;
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    align-items:center;
+    background:rgba(255,255,255,.88);
+    border:1px solid #e4d9cc;
+    border-radius:24px;
+    padding:12px;
+    margin-bottom:12px;
+    box-shadow:var(--shadow-soft);
+    backdrop-filter: blur(10px);
   }
-  .toolbar{position:sticky; top:0; z-index:3}
+
+  .toolbar{
+    position:sticky;
+    top:10px;
+    z-index:3;
+  }
+
   button, select, input{
-    border:0; border-radius:999px; padding:10px 15px; font-weight:800;
+    border:0;
+    border-radius:999px;
+    padding:10px 15px;
+    font-weight:850;
+    font-size:14px;
+    line-height:1.2;
+  }
+
+  button{
+    cursor:pointer;
+    background:linear-gradient(180deg, #333944, #252a32);
+    color:#fff;
+    box-shadow:0 4px 10px rgba(31,41,51,.12);
+    transition:transform .12s ease, opacity .12s ease, box-shadow .12s ease;
+  }
+
+  button:hover{
+    transform:translateY(-1px);
+    box-shadow:0 7px 16px rgba(31,41,51,.15);
+  }
+
+  button:active{transform:translateY(0)}
+
+  button.secondary{
+    background:#ffffff;
+    color:#2b2f36;
+    border:1px solid #cfd7e3;
+    box-shadow:none;
+  }
+
+  button.danger{
+    background:linear-gradient(180deg, #c7382f, #a8231a);
+  }
+
+  button.small{
+    padding:7px 10px;
+    font-size:12px;
+  }
+
+  select,input{
+    background:#fff;
+    color:#2b2f36;
+    border:1px solid #cfd7e3;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.9);
+  }
+
+  select.long{
+    min-width:420px;
+    max-width:100%;
+  }
+
+  input.short{
+    min-width:90px;
+    width:90px;
+  }
+
+  .hint{
+    font-size:13px;
+    color:var(--muted);
+    margin-left:auto;
+    font-weight:700;
+  }
+
+  .add-title{
+    font-weight:950;
+    color:#475569;
+    margin-right:4px;
+    padding:0 4px;
+  }
+
+  table{
+    width:100%;
+    border-collapse:separate;
+    border-spacing:0;
+    overflow:hidden;
+    border:1px solid var(--line-strong);
+    border-radius:24px;
+    background:#fff;
+    box-shadow:var(--shadow);
+  }
+
+  thead th{
+    background:linear-gradient(180deg, #343a44, #272d36);
+    color:#fff;
+    padding:14px 12px;
+    text-align:left;
+    font-size:13px;
+    letter-spacing:.04em;
+    white-space:nowrap;
+  }
+
+  tbody td{
+    padding:13px 12px;
+    border-top:1px solid var(--line);
+    vertical-align:middle;
+    font-size:15px;
+  }
+
+  tbody tr{
+    transition:background .12s ease, opacity .12s ease;
+  }
+
+  tbody tr:nth-child(even){background:#fffaf3}
+  tbody tr:hover{background:#fff3e3}
+
+  tbody tr.done{
+    opacity:.58;
+    background:#eef7ee;
+  }
+
+  tbody tr.done .member, tbody tr.done .item{
+    text-decoration:line-through;
+  }
+
+  .checkcell{
+    text-align:center;
+    width:72px;
+  }
+
+  input[type="checkbox"]{
+    width:28px;
+    height:28px;
+    min-width:auto;
+    accent-color:#2e9d49;
+    cursor:pointer;
+    padding:0;
+  }
+
+  .badge{
+    display:inline-block;
+    min-width:62px;
+    text-align:center;
+    color:white;
+    font-weight:950;
+    border-radius:999px;
+    padding:6px 10px;
+    box-shadow:inset 0 -1px 0 rgba(0,0,0,.12);
+  }
+
+  .a{background:var(--gold)}
+  .b{background:var(--blue)}
+  .c{background:var(--orange)}
+  .d{background:var(--green)}
+  .e{background:var(--pink)}
+  .other{background:var(--gray)}
+
+  .member{
+    font-weight:950;
+    font-size:17px;
+    white-space:nowrap;
+  }
+
+  .item{
+    font-weight:850;
+  }
+
+  .qty{
+    font-weight:950;
+    font-size:17px;
+  }
+
+  .no{
+    font-weight:950;
+    color:var(--muted);
     font-size:14px;
   }
-  button{cursor:pointer; background:#2b2f36; color:#fff}
-  button.secondary{background:#fff; color:#2b2f36; border:1px solid #cfd7e3}
-  button.danger{background:#b42318}
-  button.small{padding:7px 10px; font-size:12px}
-  select,input{background:#fff; color:#2b2f36; border:1px solid #cfd7e3}
-  select.long{min-width:360px; max-width:100%}
-  input.short{min-width:90px;width:90px}
-  .hint{font-size:13px; color:var(--muted); margin-left:auto}
-  .add-title{font-weight:900; color:var(--muted); margin-right:4px}
-  table{width:100%; border-collapse:separate; border-spacing:0; overflow:hidden; border:2px solid #cfc7bb; border-radius:18px; background:#fff}
-  thead th{background:#2b2f36; color:#fff; padding:12px 10px; text-align:left; font-size:14px}
-  tbody td{padding:13px 10px; border-top:1.5px solid var(--line); vertical-align:middle; font-size:15px}
-  tbody tr:nth-child(even){background:#fffaf2}
-  tbody tr.done{opacity:.58; background:#eef7ee}
-  tbody tr.done .member, tbody tr.done .item{text-decoration:line-through}
-  .checkcell{text-align:center; width:74px}
-  input[type="checkbox"]{width:28px; height:28px; min-width:auto; accent-color:#2e9d49; cursor:pointer; padding:0}
-  .badge{display:inline-block; min-width:62px; text-align:center; color:white; font-weight:900; border-radius:999px; padding:6px 10px}
-  .a{background:var(--gold)} .b{background:var(--blue)} .c{background:var(--orange)} .d{background:var(--green)} .e{background:var(--pink)} .other{background:var(--gray)}
-  .member{font-weight:900; font-size:17px; white-space:nowrap}
-  .item{font-weight:800}
-  .qty{font-weight:900; font-size:17px}
-  .no{font-weight:900; color:var(--muted); font-size:14px}
-  .actions{white-space:nowrap}
-  .memoInput{
-    width:100%; min-width:180px; border-radius:12px; padding:9px 10px;
-    font-weight:700; font-size:14px; background:#fff; border:1px solid #cfd7e3;
+
+  .actions{
+    white-space:nowrap;
   }
-  .memoText{font-weight:800; color:#374151; white-space:pre-wrap}
+
+  .memoInput{
+    width:100%;
+    min-width:180px;
+    border-radius:14px;
+    padding:9px 11px;
+    font-weight:750;
+    font-size:14px;
+    background:#fff;
+    border:1px solid #cfd7e3;
+  }
+
+  .memoText{
+    font-weight:850;
+    color:#374151;
+    white-space:pre-wrap;
+  }
+
   .memoMosaic{
     display:inline-block;
     min-width:120px;
@@ -76,6 +337,7 @@
     background-size:12px 12px;
     color:transparent;
   }
+
   body.memoHidden .memoInput{
     color:transparent;
     caret-color:#1f2933;
@@ -86,15 +348,17 @@
     background-position:0 0, 6px 6px;
     background-size:12px 12px;
   }
+
   body.memoHidden .memoInput::placeholder{
     color:transparent;
   }
+
   .tradeTextarea{
     width:100%;
-    min-height:160px;
-    border-radius:16px;
-    padding:12px 14px;
-    font-weight:700;
+    min-height:150px;
+    border-radius:18px;
+    padding:13px 15px;
+    font-weight:750;
     font-size:14px;
     line-height:1.7;
     background:#fff;
@@ -103,6 +367,7 @@
     resize:vertical;
     flex-basis:100%;
   }
+
   .exportScratch{
     position:absolute;
     left:0;
@@ -113,19 +378,54 @@
     pointer-events:none;
     z-index:-1;
   }
-  .footer{color:var(--muted); font-size:13px; margin-top:12px; line-height:1.7}
+
+  .footer{
+    color:var(--muted);
+    font-size:13px;
+    margin-top:12px;
+    line-height:1.7;
+    background:rgba(255,255,255,.72);
+    border:1px dashed #dfd2c3;
+    border-radius:16px;
+    padding:10px 14px;
+  }
+
   @media (max-width:900px){
+    .wrap{padding:14px 10px 34px}
+    .hero{padding:20px 18px; border-radius:22px}
     .cards{grid-template-columns:1fr}
     .hint{width:100%; margin-left:0}
     input, select, button{width:100%; min-width:0}
     select.long{min-width:0}
+    .toolbar{top:6px; border-radius:20px}
     table, thead, tbody, tr, th, td{display:block}
     thead{display:none}
-    tbody tr{border-top:2px solid var(--line); padding:10px}
-    tbody td{border:0; padding:6px 4px}
-    tbody td::before{content:attr(data-label); display:inline-block; width:7em; color:var(--muted); font-weight:800}
-    .checkcell{text-align:left; width:auto}
-    .checkcell::before{content:"交換決まり"; display:inline-block; width:7em; color:var(--muted); font-weight:800}
+    tbody tr{
+      border-top:2px solid var(--line);
+      padding:10px;
+    }
+    tbody td{
+      border:0;
+      padding:7px 4px;
+    }
+    tbody td::before{
+      content:attr(data-label);
+      display:inline-block;
+      width:7em;
+      color:var(--muted);
+      font-weight:850;
+    }
+    .checkcell{
+      text-align:left;
+      width:auto;
+    }
+    .checkcell::before{
+      content:"交換決まり";
+      display:inline-block;
+      width:7em;
+      color:var(--muted);
+      font-weight:850;
+    }
     .actions button{width:auto}
   }
 </style>
@@ -144,7 +444,7 @@
   </section>
 
   <section class="toolbar" data-html2canvas-ignore="true">
-    <button id="savePng">チェック状態で画像保存</button>
+    <button id="savePng">画像保存</button>
     <button id="saveUncheckedPng" class="secondary">未チェック景品だけ画像保存</button>
     <button id="savePngMosaic" class="secondary">メモを隠して画像保存</button>
     <button id="toggleMemoMask" class="secondary">メモを表示中も隠す</button>
@@ -152,6 +452,7 @@
     <button id="loadJson" class="secondary">データ読込</button>
     <input id="fileInput" type="file" accept="application/json" hidden>
     <button id="reset" class="danger">チェック全解除</button>
+    <button id="resetAll" class="danger">全部初期化</button>
     <select id="sort">
       <option value="prize">賞順でソート</option>
       <option value="prizeMember">賞順＋メンバー順</option>
@@ -163,7 +464,7 @@
   </section>
 
   <section class="addbox" data-html2canvas-ignore="true">
-    <div class="add-title">手に入れた物を追加</div>
+    <div class="add-title">景品追加</div>
     <select id="addPrizeItem" class="long"></select>
     <select id="addMember"></select>
     <input id="addQty" class="short" type="number" min="1" value="1" title="数量">
@@ -171,9 +472,10 @@
   </section>
 
   <section class="addbox" data-html2canvas-ignore="true">
-    <div class="add-title">未チェックのテキスト</div>
+    <div class="add-title">交換用テキスト</div>
     <button id="copyUncheckedText" class="secondary">テキストをコピー</button>
-    <textarea id="uncheckedText" class="tradeTextarea" placeholder="未チェックのアイテムがここに出ます"></textarea>
+    <button id="postToTwitter" class="secondary">Twitterに投稿</button>
+    <textarea id="uncheckedText" class="tradeTextarea" placeholder="ガチャ名＋未チェックのアイテムがここに出ます"></textarea>
   </section>
 
   <table id="table">
@@ -495,10 +797,17 @@ function getUncheckedRows(){
 
 function buildUncheckedText(){
   const items = getUncheckedRows();
+  const header = [
+    "【楽天ブックス オンラインラッキードロー】OCHA NORMA",
+    "",
+    "(譲)"
+  ];
+
   if(!items.length){
-    return "(譲)\nなし";
+    return [...header, "なし"].join("\n");
   }
-  return ["(譲)", ...items.map(r => {
+
+  return [...header, ...items.map(r => {
     const parts = [r.prize, r.item];
     if(r.member) parts.push(r.member);
     if(r.costume) parts.push(`（${r.costume}）`);
@@ -694,6 +1003,16 @@ document.getElementById("copyUncheckedText").addEventListener("click", async ()=
   }
 });
 
+document.getElementById("postToTwitter").addEventListener("click", ()=>{
+  const textarea = document.getElementById("uncheckedText");
+  updateUncheckedText();
+
+  const text = textarea.value || "";
+  const url = "https://twitter.com/intent/tweet?text=" + encodeURIComponent(text);
+
+  window.open(url, "_blank", "noopener,noreferrer");
+});
+
 
 document.getElementById("toggleMemoMask").addEventListener("click", ()=>{
   memoMaskVisible = !memoMaskVisible;
@@ -710,6 +1029,34 @@ document.getElementById("reset").addEventListener("click", ()=>{
     saveAll();
     sortRows(document.getElementById("sort").value);
   }
+});
+
+document.getElementById("resetAll").addEventListener("click", ()=>{
+  const first = confirm(
+    "追加した景品・チェック・メモ・並び替え用データ・メモのモザイク表示設定をすべて初期化します。\n\nこの操作は元に戻せません。\n本当に初期化しますか？"
+  );
+  if(!first) return;
+
+  const second = confirm(
+    "最終確認です。\n保存していない交換メモや追加景品も消えます。\n\n全部初期化してよろしいですか？"
+  );
+  if(!second) return;
+
+  localStorage.removeItem(STORE_ROWS);
+  localStorage.removeItem(STORE_CHECKED);
+  localStorage.removeItem(STORE_MEMO_MASK);
+
+  rows = structuredClone(defaultRows);
+  checked = {};
+  memoMaskVisible = false;
+  viewRows = [...rows];
+
+  document.getElementById("sort").value = "prize";
+  applyMemoMaskState();
+  saveAll();
+  sortRows("prize");
+
+  alert("初期化しました。");
 });
 
 document.getElementById("saveJson").addEventListener("click", ()=>{
