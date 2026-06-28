@@ -1,0 +1,793 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>OCHA NORMA 抽選結果 交換チェックアプリ</title>
+<style>
+  :root{
+    --bg:#fffdf8; --card:#fff4df; --line:#ded7ca; --ink:#1f2933; --muted:#55606a;
+    --red:#d71920; --gold:#b88a2f; --blue:#4d85c5; --orange:#c56635; --green:#2e9d49; --pink:#d45c8d; --gray:#6b7280;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; background:var(--bg); color:var(--ink);
+    font-family: system-ui, -apple-system, "Segoe UI", "Noto Sans JP", "Hiragino Kaku Gothic ProN", Meiryo, sans-serif;
+  }
+  .wrap{max-width:1240px; margin:0 auto; padding:18px 14px 40px}
+  .hero{
+    border:2px solid #f0d7a5; background:var(--card); border-radius:22px;
+    padding:20px 24px; margin-bottom:14px;
+  }
+  h1{font-size:clamp(22px,3.2vw,36px); color:var(--red); margin:0 0 10px; line-height:1.25}
+  .subtitle{font-weight:800; font-size:clamp(15px,2vw,22px); line-height:1.55}
+  .cards{display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin:14px 0}
+  .card{border:1.5px solid #e2d8c7; border-radius:18px; padding:14px 18px; background:#fff}
+  .card b{display:block; color:var(--muted); margin-bottom:4px}
+  .card span{font-size:22px; font-weight:900}
+  .toolbar, .addbox{
+    display:flex; gap:10px; flex-wrap:wrap; align-items:center;
+    background:#f4f7fb; border:1px solid #d7dde6; border-radius:18px; padding:12px; margin-bottom:12px;
+  }
+  .toolbar{position:sticky; top:0; z-index:3}
+  button, select, input{
+    border:0; border-radius:999px; padding:10px 15px; font-weight:800;
+    font-size:14px;
+  }
+  button{cursor:pointer; background:#2b2f36; color:#fff}
+  button.secondary{background:#fff; color:#2b2f36; border:1px solid #cfd7e3}
+  button.danger{background:#b42318}
+  button.small{padding:7px 10px; font-size:12px}
+  select,input{background:#fff; color:#2b2f36; border:1px solid #cfd7e3}
+  select.long{min-width:360px; max-width:100%}
+  input.short{min-width:90px;width:90px}
+  .hint{font-size:13px; color:var(--muted); margin-left:auto}
+  .add-title{font-weight:900; color:var(--muted); margin-right:4px}
+  table{width:100%; border-collapse:separate; border-spacing:0; overflow:hidden; border:2px solid #cfc7bb; border-radius:18px; background:#fff}
+  thead th{background:#2b2f36; color:#fff; padding:12px 10px; text-align:left; font-size:14px}
+  tbody td{padding:13px 10px; border-top:1.5px solid var(--line); vertical-align:middle; font-size:15px}
+  tbody tr:nth-child(even){background:#fffaf2}
+  tbody tr.done{opacity:.58; background:#eef7ee}
+  tbody tr.done .member, tbody tr.done .item{text-decoration:line-through}
+  .checkcell{text-align:center; width:74px}
+  input[type="checkbox"]{width:28px; height:28px; min-width:auto; accent-color:#2e9d49; cursor:pointer; padding:0}
+  .badge{display:inline-block; min-width:62px; text-align:center; color:white; font-weight:900; border-radius:999px; padding:6px 10px}
+  .a{background:var(--gold)} .b{background:var(--blue)} .c{background:var(--orange)} .d{background:var(--green)} .e{background:var(--pink)} .other{background:var(--gray)}
+  .member{font-weight:900; font-size:17px; white-space:nowrap}
+  .item{font-weight:800}
+  .qty{font-weight:900; font-size:17px}
+  .no{font-weight:900; color:var(--muted); font-size:14px}
+  .actions{white-space:nowrap}
+  .memoInput{
+    width:100%; min-width:180px; border-radius:12px; padding:9px 10px;
+    font-weight:700; font-size:14px; background:#fff; border:1px solid #cfd7e3;
+  }
+  .memoText{font-weight:800; color:#374151; white-space:pre-wrap}
+  .memoMosaic{
+    display:inline-block;
+    min-width:120px;
+    min-height:1.35em;
+    border-radius:8px;
+    background:
+      linear-gradient(45deg, rgba(31,41,51,.32) 25%, transparent 25% 75%, rgba(31,41,51,.32) 75%),
+      linear-gradient(45deg, rgba(31,41,51,.18) 25%, transparent 25% 75%, rgba(31,41,51,.18) 75%),
+      #e5e7eb;
+    background-position:0 0, 6px 6px;
+    background-size:12px 12px;
+    color:transparent;
+  }
+  body.memoHidden .memoInput{
+    color:transparent;
+    caret-color:#1f2933;
+    background:
+      linear-gradient(45deg, rgba(31,41,51,.30) 25%, transparent 25% 75%, rgba(31,41,51,.30) 75%),
+      linear-gradient(45deg, rgba(31,41,51,.16) 25%, transparent 25% 75%, rgba(31,41,51,.16) 75%),
+      #e5e7eb;
+    background-position:0 0, 6px 6px;
+    background-size:12px 12px;
+  }
+  body.memoHidden .memoInput::placeholder{
+    color:transparent;
+  }
+  .tradeTextarea{
+    width:100%;
+    min-height:160px;
+    border-radius:16px;
+    padding:12px 14px;
+    font-weight:700;
+    font-size:14px;
+    line-height:1.7;
+    background:#fff;
+    color:#1f2933;
+    border:1px solid #cfd7e3;
+    resize:vertical;
+    flex-basis:100%;
+  }
+  .exportScratch{
+    position:absolute;
+    left:0;
+    top:0;
+    width:1200px;
+    background:#fffdf8;
+    opacity:0.01;
+    pointer-events:none;
+    z-index:-1;
+  }
+  .footer{color:var(--muted); font-size:13px; margin-top:12px; line-height:1.7}
+  @media (max-width:900px){
+    .cards{grid-template-columns:1fr}
+    .hint{width:100%; margin-left:0}
+    input, select, button{width:100%; min-width:0}
+    select.long{min-width:0}
+    table, thead, tbody, tr, th, td{display:block}
+    thead{display:none}
+    tbody tr{border-top:2px solid var(--line); padding:10px}
+    tbody td{border:0; padding:6px 4px}
+    tbody td::before{content:attr(data-label); display:inline-block; width:7em; color:var(--muted); font-weight:800}
+    .checkcell{text-align:left; width:auto}
+    .checkcell::before{content:"交換決まり"; display:inline-block; width:7em; color:var(--muted); font-weight:800}
+    .actions button{width:auto}
+  }
+</style>
+</head>
+<body>
+<div class="wrap" id="capture">
+  <section class="hero">
+    <h1>楽天ブックス オンラインラッキードロー 抽選結果</h1>
+    <div class="subtitle">OCHA NORMA 6thシングル<br>『ダントツで愛して／また、あなたに恋焦がれているんだ』</div>
+  </section>
+
+  <section class="cards">
+    <div class="card" style="background:#fff0cf"><b>合計</b><span id="totalCount">8点</span></div>
+    <div class="card" style="background:#edf7ff"><b>賞別</b><span id="prizeSummary">B賞1 / C賞4 / D賞3</span></div>
+    <div class="card" style="background:#f4f1ff"><b>衣装別</b><span id="costumeSummary">ダントツ6 / また恋2</span></div>
+  </section>
+
+  <section class="toolbar" data-html2canvas-ignore="true">
+    <button id="savePng">チェック状態で画像保存</button>
+    <button id="saveUncheckedPng" class="secondary">未チェック景品だけ画像保存</button>
+    <button id="savePngMosaic" class="secondary">メモを隠して画像保存</button>
+    <button id="toggleMemoMask" class="secondary">メモを表示中も隠す</button>
+    <button id="saveJson" class="secondary">チェック状態をデータ保存</button>
+    <button id="loadJson" class="secondary">データ読込</button>
+    <input id="fileInput" type="file" accept="application/json" hidden>
+    <button id="reset" class="danger">チェック全解除</button>
+    <select id="sort">
+      <option value="prize">賞順でソート</option>
+      <option value="prizeMember">賞順＋メンバー順</option>
+      <option value="member">メンバー名順</option>
+      <option value="checked">未交換を上に表示</option>
+      <option value="added">追加順で表示</option>
+    </select>
+    <div class="hint">賞順＋メンバー順でも並べ替えできます</div>
+  </section>
+
+  <section class="addbox" data-html2canvas-ignore="true">
+    <div class="add-title">手に入れた物を追加</div>
+    <select id="addPrizeItem" class="long"></select>
+    <select id="addMember"></select>
+    <input id="addQty" class="short" type="number" min="1" value="1" title="数量">
+    <button id="addOne">追加</button>
+  </section>
+
+  <section class="addbox" data-html2canvas-ignore="true">
+    <div class="add-title">未チェックのテキスト</div>
+    <button id="copyUncheckedText" class="secondary">テキストをコピー</button>
+    <textarea id="uncheckedText" class="tradeTextarea" placeholder="未チェックのアイテムがここに出ます"></textarea>
+  </section>
+
+  <table id="table">
+    <thead>
+      <tr>
+        <th>交換決まり</th><th>賞</th><th>内容</th><th>メンバー</th><th>衣装</th><th>数量</th><th>メモ</th><th data-html2canvas-ignore="true">操作</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <div class="footer" data-save-ignore="true">
+    ※交換が決まったものは左端にチェック。画像保存すると、チェック済みの状態をそのまま共有用画像にできます。<br>
+    ※メモ欄に交換予定・交換相手・希望品などを書けます。共有用には「メモを隠して画像保存」や、未チェック景品のみの画像保存も使えます。同じ内容のチェキも <b>No.を分けて別々管理</b> できます。表記確認：<b>西﨑美空</b>（「西崎」ではなく「西﨑」）
+  </div>
+</div>
+
+<div id="exportScratch" class="exportScratch" data-html2canvas-ignore="true"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<script>
+const members = [
+  "斉藤円香",
+  "広本瑠璃",
+  "米村姫良々",
+  "窪田七海",
+  "中山夏月姫",
+  "西﨑美空",
+  "北原もも",
+  "筒井澪心",
+  "集合"
+];
+
+const memberOrder = [
+  "斉藤円香",
+  "広本瑠璃",
+  "米村姫良々",
+  "窪田七海",
+  "中山夏月姫",
+  "西﨑美空",
+  "北原もも",
+  "筒井澪心",
+  "集合"
+];
+
+function memberRank(name){
+  const idx = memberOrder.indexOf(name);
+  return idx === -1 ? 999 : idx;
+}
+
+const prizeItems = [
+  {prize:"A賞", costume:"『ダントツで愛して』衣装", item:"A5アクリルプレート", label:"A賞: 『ダントツで愛して』衣装着用A5アクリルプレート"},
+  {prize:"B賞", costume:"『ダントツで愛して』衣装", item:"A4クリアポスター", label:"B賞: 『ダントツで愛して』衣装着用A4クリアポスター"},
+  {prize:"C賞", costume:"『ダントツで愛して』衣装", item:"オリジナルチェキ", label:"C賞: 『ダントツで愛して』衣装着用オリジナルチェキ"},
+  {prize:"D賞", costume:"『ダントツで愛して』衣装", item:"撮りおろしL版ブロマイド", label:"D賞: 『ダントツで愛して』衣装着用撮りおろしL版ブロマイド"},
+  {prize:"E賞", costume:"『ダントツで愛して』衣装", item:"撮りおろしL版ブロマイド 集合", label:"E賞: 『ダントツで愛して』衣装着用撮りおろしL版ブロマイド 集合", forceMember:"集合"},
+
+  {prize:"C賞", costume:"『また、あなたに恋焦がれているんだ』衣装", item:"オリジナルチェキ", label:"C賞: 『また、あなたに恋焦がれているんだ』衣装着用オリジナルチェキ"},
+  {prize:"D賞", costume:"『また、あなたに恋焦がれているんだ』衣装", item:"撮りおろしL版ブロマイド", label:"D賞: 『また、あなたに恋焦がれているんだ』衣装着用撮りおろしL版ブロマイド"},
+  {prize:"E賞", costume:"『また、あなたに恋焦がれているんだ』衣装", item:"撮りおろしL版ブロマイド 集合", label:"E賞: 『また、あなたに恋焦がれているんだ』衣装着用撮りおろしL版ブロマイド 集合", forceMember:"集合"},
+
+  {prize:"C賞", costume:"『ライアーライナー』衣装", item:"オリジナルチェキ", label:"C賞: 『ライアーライナー』衣装着用オリジナルチェキ"},
+  {prize:"D賞", costume:"『ダントツで愛して』衣装", item:"撮りおろしL版ブロマイド", label:"D賞: 『ダントツで愛して』衣装着用撮りおろしL版ブロマイド"},
+  {prize:"E賞", costume:"『ダントツで愛して』衣装", item:"撮りおろしL版ブロマイド 集合", label:"E賞: 『ダントツで愛して』衣装着用撮りおろしL版ブロマイド 集合", forceMember:"集合"}
+];
+
+const defaultRows = [
+  {id:"b-nishizaki-poster-01", no:"01", prize:"B賞", rank:2, item:"A4クリアポスター", member:"西﨑美空", costume:"『ダントツで愛して』衣装", qty:1, memo:"", createdAt:1, fixed:true},
+  {id:"c-kitagawa-cheki-01", no:"02", prize:"C賞", rank:3, item:"オリジナルチェキ", member:"北原もも", costume:"『ダントツで愛して』衣装", qty:1, memo:"", createdAt:2, fixed:true},
+  {id:"c-kitagawa-cheki-02", no:"03", prize:"C賞", rank:3, item:"オリジナルチェキ", member:"北原もも", costume:"『ダントツで愛して』衣装", qty:1, memo:"", createdAt:3, fixed:true},
+  {id:"c-yonemura-cheki-01", no:"04", prize:"C賞", rank:3, item:"オリジナルチェキ", member:"米村姫良々", costume:"『また、あなたに恋焦がれているんだ』衣装", qty:1, memo:"", createdAt:4, fixed:true},
+  {id:"c-tsutsui-cheki-01", no:"05", prize:"C賞", rank:3, item:"オリジナルチェキ", member:"筒井澪心", costume:"『また、あなたに恋焦がれているんだ』衣装", qty:1, memo:"", createdAt:5, fixed:true},
+  {id:"d-nakayama-bromide-01", no:"06", prize:"D賞", rank:4, item:"撮りおろしL版ブロマイド", member:"中山夏月姫", costume:"『ダントツで愛して』衣装", qty:1, memo:"", createdAt:6, fixed:true},
+  {id:"d-hiromoto-bromide-01", no:"07", prize:"D賞", rank:4, item:"撮りおろしL版ブロマイド", member:"広本瑠璃", costume:"『ダントツで愛して』衣装", qty:1, memo:"", createdAt:7, fixed:true},
+  {id:"d-kubota-bromide-01", no:"08", prize:"D賞", rank:4, item:"撮りおろしL版ブロマイド", member:"窪田七海", costume:"『ダントツで愛して』衣装", qty:1, memo:"", createdAt:8, fixed:true}
+];
+
+const STORE_ROWS = "ochaLuckyDrawRows_v4_select";
+const STORE_CHECKED = "ochaLuckyDrawChecked_v4_select";
+
+const STORE_MEMO_MASK = "ochaLuckyDrawMemoMask_visible";
+
+let rows = JSON.parse(localStorage.getItem(STORE_ROWS) || "null") || structuredClone(defaultRows);
+let checked = JSON.parse(localStorage.getItem(STORE_CHECKED) || "{}");
+let memoMaskVisible = localStorage.getItem(STORE_MEMO_MASK) === "true";
+let viewRows = [...rows];
+
+function applyMemoMaskState(){
+  document.body.classList.toggle("memoHidden", memoMaskVisible);
+  const btn = document.getElementById("toggleMemoMask");
+  if(btn){
+    btn.textContent = memoMaskVisible ? "メモの表示を戻す" : "メモを表示中も隠す";
+  }
+}
+
+function initSelects(){
+  const prizeSelect = document.getElementById("addPrizeItem");
+
+  const prizeOrder = ["A賞", "B賞", "C賞", "D賞", "E賞"];
+  const groupedHtml = prizeOrder.map(prize => {
+    const options = prizeItems
+      .map((p, i) => ({...p, originalIndex:i}))
+      .filter(p => p.prize === prize)
+      .map(p => `<option value="${p.originalIndex}">${escapeHtml(p.label.replace(p.prize + ": ", ""))}</option>`)
+      .join("");
+    return options ? `<optgroup label="${prize}">${options}</optgroup>` : "";
+  }).join("");
+
+  prizeSelect.innerHTML = groupedHtml;
+
+  const memSelect = document.getElementById("addMember");
+  memSelect.innerHTML = members.map(m=>`<option value="${escapeHtml(m)}">${escapeHtml(m)}</option>`).join("");
+  prizeSelect.addEventListener("change", updateMemberForPrize);
+  updateMemberForPrize();
+}
+
+function updateMemberForPrize(){
+  const p = prizeItems[Number(document.getElementById("addPrizeItem").value)];
+  const mem = document.getElementById("addMember");
+  if(p.forceMember){
+    mem.value = p.forceMember;
+    mem.disabled = true;
+  } else {
+    mem.disabled = false;
+    if(mem.value === "集合") mem.value = "斉藤円香";
+  }
+}
+
+function rankFor(prize){
+  if(prize === "A賞") return 1;
+  if(prize === "B賞") return 2;
+  if(prize === "C賞") return 3;
+  if(prize === "D賞") return 4;
+  if(prize === "E賞") return 5;
+  return 9;
+}
+
+function saveAll(){
+  localStorage.setItem(STORE_ROWS, JSON.stringify(rows));
+  localStorage.setItem(STORE_CHECKED, JSON.stringify(checked));
+}
+
+function nextNo(){
+  const max = rows.reduce((m,r)=>Math.max(m, Number(r.no)||0), 0);
+  return String(max + 1).padStart(2, "0");
+}
+
+function badgeClass(prize){
+  if(prize.startsWith("A")) return "a";
+  if(prize.startsWith("B")) return "b";
+  if(prize.startsWith("C")) return "c";
+  if(prize.startsWith("D")) return "d";
+  if(prize.startsWith("E")) return "e";
+  return "other";
+}
+
+function summarize(){
+  document.getElementById("totalCount").textContent = rows.reduce((s,r)=>s + Number(r.qty || 1), 0) + "点";
+  const prizeOrder = ["A賞","B賞","C賞","D賞","E賞","その他"];
+  const byPrize = {};
+  rows.forEach(r=>byPrize[r.prize]=(byPrize[r.prize]||0)+Number(r.qty||1));
+  document.getElementById("prizeSummary").textContent =
+    prizeOrder.filter(p=>byPrize[p]).map(p=>`${p}${byPrize[p]}`).join(" / ") || "-";
+
+  const dantotsu = rows.filter(r=>r.costume.includes("ダントツ")).reduce((s,r)=>s+Number(r.qty||1),0);
+  const mata = rows.filter(r=>r.costume.includes("また、あなた") || r.costume.includes("恋焦がれて")).reduce((s,r)=>s+Number(r.qty||1),0);
+  const liar = rows.filter(r=>r.costume.includes("ライアーライナー")).reduce((s,r)=>s+Number(r.qty||1),0);
+  const other = rows.reduce((s,r)=>s+Number(r.qty||1),0) - dantotsu - mata - liar;
+  const parts = [];
+  if(dantotsu) parts.push(`ダントツ${dantotsu}`);
+  if(mata) parts.push(`また恋${mata}`);
+  if(liar) parts.push(`ライアー${liar}`);
+  if(other) parts.push(`その他${other}`);
+  document.getElementById("costumeSummary").textContent = parts.join(" / ") || "-";
+}
+
+function render(){
+  summarize();
+  const tbody = document.querySelector("#table tbody");
+  tbody.innerHTML = "";
+  viewRows.forEach(r => {
+    const tr = document.createElement("tr");
+    if(checked[r.id]) tr.classList.add("done");
+    tr.innerHTML = `
+      <td class="checkcell"><input type="checkbox" ${checked[r.id] ? "checked" : ""} data-id="${r.id}"></td>
+      <td data-label="賞"><span class="badge ${badgeClass(r.prize)}">${escapeHtml(r.prize)}</span></td>
+      <td data-label="内容" class="item">${escapeHtml(r.item)}</td>
+      <td data-label="メンバー" class="member">${escapeHtml(r.member)}</td>
+      <td data-label="衣装">${escapeHtml(r.costume)}</td>
+      <td data-label="数量" class="qty">×${Number(r.qty || 1)}</td>
+      <td data-label="メモ">
+        <input class="memoInput" data-memo="${r.id}" value="${escapeAttr(r.memo || "")}" placeholder="例：〇〇と交換予定">
+      </td>
+      <td data-label="操作" class="actions" data-html2canvas-ignore="true">
+        <button class="small secondary" data-edit="${r.id}">編集</button>
+        <button class="small danger" data-del="${r.id}">削除</button>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+
+  document.querySelectorAll('input[type="checkbox"]').forEach(cb=>{
+    cb.addEventListener("change", e=>{
+      checked[e.target.dataset.id] = e.target.checked;
+      saveAll();
+      render();
+    });
+  });
+
+  document.querySelectorAll("[data-memo]").forEach(input=>{
+    input.addEventListener("input", e=>{
+      const target = rows.find(r=>r.id===e.target.dataset.memo);
+      if(target){
+        target.memo = e.target.value;
+        saveAll();
+      }
+    });
+  });
+  document.querySelectorAll("[data-del]").forEach(btn=>{
+    btn.addEventListener("click", e=>{
+      const id = e.target.dataset.del;
+      const target = rows.find(r=>r.id===id);
+      if(confirm(`「${target.member} / ${target.item}」を削除しますか？`)){
+        rows = rows.filter(r=>r.id!==id);
+        delete checked[id];
+        saveAll();
+        sortRows(document.getElementById("sort").value);
+      }
+    });
+  });
+  document.querySelectorAll("[data-edit]").forEach(btn=>{
+    btn.addEventListener("click", e=>{
+      editRow(e.target.dataset.edit);
+    });
+  });
+
+  updateUncheckedText();
+}
+
+function sortRows(mode){
+  viewRows = [...rows];
+  if(mode === "member"){
+    viewRows.sort((a,b)=> memberRank(a.member)-memberRank(b.member) || a.member.localeCompare(b.member, "ja") || a.rank-b.rank || Number(a.no)-Number(b.no));
+  } else if(mode === "prizeMember"){
+    viewRows.sort((a,b)=> a.rank-b.rank || memberRank(a.member)-memberRank(b.member) || a.member.localeCompare(b.member, "ja") || Number(a.no)-Number(b.no));
+  } else if(mode === "checked"){
+    viewRows.sort((a,b)=> (Boolean(checked[a.id])===Boolean(checked[b.id]) ? (a.rank-b.rank || memberRank(a.member)-memberRank(b.member) || Number(a.no)-Number(b.no)) : Number(Boolean(checked[a.id]))-Number(Boolean(checked[b.id]))));
+  } else if(mode === "added"){
+    viewRows.sort((a,b)=> Number(a.createdAt)-Number(b.createdAt));
+  } else {
+    viewRows.sort((a,b)=> a.rank-b.rank || Number(a.no)-Number(b.no));
+  }
+  render();
+}
+
+function escapeHtml(str){
+  return String(str).replace(/[&<>"']/g, s=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[s]));
+}
+
+function escapeAttr(str){
+  return String(str).replace(/[&<>"']/g, s=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[s]));
+}
+
+function addRow(){
+  const selected = prizeItems[Number(document.getElementById("addPrizeItem").value)];
+  const member = selected.forceMember || document.getElementById("addMember").value;
+  const qty = Math.max(1, Number(document.getElementById("addQty").value || 1));
+
+  for(let i=0; i<qty; i++){
+    const no = nextNo();
+    const id = `custom-${Date.now()}-${Math.random().toString(36).slice(2,8)}-${i}`;
+    rows.push({
+      id, no,
+      prize:selected.prize,
+      rank:rankFor(selected.prize),
+      item:selected.item,
+      member,
+      costume:selected.costume,
+      qty:1,
+      memo:"",
+      createdAt: Date.now() + i,
+      fixed:false
+    });
+  }
+
+  document.getElementById("addQty").value = 1;
+  saveAll();
+  sortRows(document.getElementById("sort").value);
+}
+
+function editRow(id){
+  const r = rows.find(x=>x.id===id);
+  if(!r) return;
+  const prize = prompt("賞を編集", r.prize);
+  if(prize === null) return;
+  const item = prompt("内容を編集", r.item);
+  if(item === null) return;
+  const member = prompt("メンバー名を編集", r.member);
+  if(member === null) return;
+  const costume = prompt("衣装を編集", r.costume);
+  if(costume === null) return;
+  const memo = prompt("メモを編集", r.memo || "");
+  if(memo === null) return;
+
+  r.prize = prize.trim() || r.prize;
+  r.rank = rankFor(r.prize);
+  r.item = item.trim() || r.item;
+  r.member = member.trim() || r.member;
+  r.costume = costume.trim() || r.costume;
+  r.memo = memo.trim();
+  saveAll();
+  sortRows(document.getElementById("sort").value);
+}
+
+
+function getUncheckedRows(){
+  return viewRows.filter(r => !checked[r.id]);
+}
+
+function buildUncheckedText(){
+  const items = getUncheckedRows();
+  if(!items.length){
+    return "(譲)\nなし";
+  }
+  return ["(譲)", ...items.map(r => {
+    const parts = [r.prize, r.item];
+    if(r.member) parts.push(r.member);
+    if(r.costume) parts.push(`（${r.costume}）`);
+    return parts.join(" ");
+  })].join("\n");
+}
+
+function updateUncheckedText(){
+  const textarea = document.getElementById("uncheckedText");
+  if(textarea){
+    textarea.value = buildUncheckedText();
+  }
+}
+
+function buildPrizeSummaryFromItems(items){
+  const prizeOrder = ["A賞","B賞","C賞","D賞","E賞","その他"];
+  const byPrize = {};
+  items.forEach(r => byPrize[r.prize] = (byPrize[r.prize] || 0) + Number(r.qty || 1));
+  return prizeOrder.filter(p => byPrize[p]).map(p => `${p}${byPrize[p]}`).join(" / ") || "-";
+}
+
+function roundRect(ctx, x, y, w, h, r){
+  const radius = Math.min(r, w / 2, h / 2);
+  ctx.beginPath();
+  ctx.moveTo(x + radius, y);
+  ctx.arcTo(x + w, y, x + w, y + h, radius);
+  ctx.arcTo(x + w, y + h, x, y + h, radius);
+  ctx.arcTo(x, y + h, x, y, radius);
+  ctx.arcTo(x, y, x + w, y, radius);
+  ctx.closePath();
+}
+
+function wrapCanvasText(ctx, text, maxWidth){
+  const chars = String(text || "").split("");
+  const lines = [];
+  let line = "";
+  chars.forEach(ch => {
+    const test = line + ch;
+    if(ctx.measureText(test).width <= maxWidth || !line){
+      line = test;
+    }else{
+      lines.push(line);
+      line = ch;
+    }
+  });
+  if(line) lines.push(line);
+  return lines;
+}
+
+function badgeColor(prize){
+  if(String(prize).startsWith("A")) return "#b88a2f";
+  if(String(prize).startsWith("B")) return "#4d85c5";
+  if(String(prize).startsWith("C")) return "#c56635";
+  if(String(prize).startsWith("D")) return "#2e9d49";
+  if(String(prize).startsWith("E")) return "#d45c8d";
+  return "#6b7280";
+}
+
+function drawTextLines(ctx, text, x, y, maxWidth, lineHeight, maxLines){
+  const lines = wrapCanvasText(ctx, text, maxWidth).slice(0, maxLines || 99);
+  lines.forEach((line, i) => ctx.fillText(line, x, y + i * lineHeight));
+}
+
+async function saveUncheckedImage(){
+  const items = getUncheckedRows();
+  if(!items.length){
+    alert("未チェックのアイテムはありません。");
+    return;
+  }
+
+  const scale = 2;
+  const W = 1080;
+  const margin = 30;
+  const headerH = 50;
+  const rowH = 82;
+  const tableW = W - margin * 2;
+  const H = margin + headerH + rowH * items.length + margin;
+
+  const canvas = document.createElement("canvas");
+  canvas.width = W * scale;
+  canvas.height = H * scale;
+  const ctx = canvas.getContext("2d");
+  ctx.scale(scale, scale);
+
+  ctx.fillStyle = "#fffdf8";
+  ctx.fillRect(0, 0, W, H);
+  ctx.textBaseline = "top";
+
+  const tableY = margin;
+  const cols = [
+    {key:"prize", label:"賞", w:78},
+    {key:"item", label:"景品", w:270},
+    {key:"member", label:"メンバー", w:150},
+    {key:"costume", label:"衣装", w:370},
+    {key:"memo", label:"メモ", w:tableW - 78 - 270 - 150 - 370}
+  ];
+
+  roundRect(ctx, margin, tableY, tableW, headerH + rowH * items.length, 18);
+  ctx.fillStyle = "#ffffff";
+  ctx.fill();
+  ctx.strokeStyle = "#cfc7bb";
+  ctx.lineWidth = 2;
+  ctx.stroke();
+
+  ctx.save();
+  roundRect(ctx, margin, tableY, tableW, headerH, 18);
+  ctx.clip();
+  ctx.fillStyle = "#2b2f36";
+  ctx.fillRect(margin, tableY, tableW, headerH);
+  ctx.restore();
+  ctx.fillStyle = "#2b2f36";
+  ctx.fillRect(margin, tableY + 18, tableW, headerH - 18);
+
+  let x = margin;
+  ctx.font = '800 15px system-ui, -apple-system, "Segoe UI", "Noto Sans JP", Meiryo, sans-serif';
+  cols.forEach(col => {
+    ctx.fillStyle = "#ffffff";
+    ctx.fillText(col.label, x + 12, tableY + 16);
+    x += col.w;
+  });
+
+  items.forEach((r, idx) => {
+    const y = tableY + headerH + idx * rowH;
+    ctx.fillStyle = idx % 2 ? "#fffaf2" : "#ffffff";
+    ctx.fillRect(margin, y, tableW, rowH);
+    ctx.strokeStyle = "#ded7ca";
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(margin, y);
+    ctx.lineTo(margin + tableW, y);
+    ctx.stroke();
+
+    x = margin;
+
+    roundRect(ctx, x + 12, y + 25, 54, 32, 16);
+    ctx.fillStyle = badgeColor(r.prize);
+    ctx.fill();
+    ctx.font = '900 15px system-ui, -apple-system, "Segoe UI", "Noto Sans JP", Meiryo, sans-serif';
+    ctx.fillStyle = "#ffffff";
+    ctx.fillText(String(r.prize || ""), x + 21, y + 33);
+    x += cols[0].w;
+
+    ctx.font = '900 17px system-ui, -apple-system, "Segoe UI", "Noto Sans JP", Meiryo, sans-serif';
+    ctx.fillStyle = "#1f2933";
+    drawTextLines(ctx, r.item, x + 12, y + 21, cols[1].w - 24, 21, 2);
+    x += cols[1].w;
+
+    ctx.font = '900 18px system-ui, -apple-system, "Segoe UI", "Noto Sans JP", Meiryo, sans-serif';
+    ctx.fillStyle = "#1f2933";
+    drawTextLines(ctx, r.member, x + 12, y + 30, cols[2].w - 24, 22, 1);
+    x += cols[2].w;
+
+    ctx.font = '800 15px system-ui, -apple-system, "Segoe UI", "Noto Sans JP", Meiryo, sans-serif';
+    ctx.fillStyle = "#1f2933";
+    drawTextLines(ctx, r.costume, x + 12, y + 20, cols[3].w - 24, 21, 2);
+    x += cols[3].w;
+
+    ctx.font = '800 14px system-ui, -apple-system, "Segoe UI", "Noto Sans JP", Meiryo, sans-serif';
+    ctx.fillStyle = "#374151";
+    drawTextLines(ctx, r.memo || "-", x + 12, y + 21, cols[4].w - 24, 20, 2);
+
+    let vx = margin;
+    ctx.strokeStyle = "#eee6da";
+    cols.slice(0, -1).forEach(col => {
+      vx += col.w;
+      ctx.beginPath();
+      ctx.moveTo(vx, y);
+      ctx.lineTo(vx, y + rowH);
+      ctx.stroke();
+    });
+  });
+
+  const a = document.createElement("a");
+  a.href = canvas.toDataURL("image/png");
+  a.download = "ocha_norma_unchecked_prizes_only.png";
+  a.click();
+}
+
+document.getElementById("saveUncheckedPng").addEventListener("click", ()=>{
+  saveUncheckedImage();
+});
+
+document.getElementById("copyUncheckedText").addEventListener("click", async ()=>{
+  const textarea = document.getElementById("uncheckedText");
+  updateUncheckedText();
+  try{
+    await navigator.clipboard.writeText(textarea.value);
+    alert("未チェックのテキストをコピーしました。");
+  }catch(err){
+    textarea.select();
+    document.execCommand("copy");
+    alert("未チェックのテキストをコピーしました。");
+  }
+});
+
+
+document.getElementById("toggleMemoMask").addEventListener("click", ()=>{
+  memoMaskVisible = !memoMaskVisible;
+  localStorage.setItem(STORE_MEMO_MASK, String(memoMaskVisible));
+  applyMemoMaskState();
+});
+
+document.getElementById("addOne").addEventListener("click", addRow);
+document.getElementById("sort").addEventListener("change", e=>sortRows(e.target.value));
+
+document.getElementById("reset").addEventListener("click", ()=>{
+  if(confirm("チェックを全部外しますか？")){
+    checked = {};
+    saveAll();
+    sortRows(document.getElementById("sort").value);
+  }
+});
+
+document.getElementById("saveJson").addEventListener("click", ()=>{
+  const payload = {
+    title:"OCHA NORMA 6thシングル 楽天ブックス オンラインラッキードロー 抽選結果",
+    savedAt:new Date().toISOString(),
+    note:"選択式で追加した物・チェック状態を保存",
+    checked,
+    rows
+  };
+  const blob = new Blob([JSON.stringify(payload, null, 2)], {type:"application/json"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "ocha_norma_lucky_draw_check_data.json";
+  a.click();
+  URL.revokeObjectURL(a.href);
+});
+
+document.getElementById("loadJson").addEventListener("click", ()=>document.getElementById("fileInput").click());
+document.getElementById("fileInput").addEventListener("change", async e=>{
+  const file = e.target.files[0];
+  if(!file) return;
+  try{
+    const data = JSON.parse(await file.text());
+    rows = data.rows || rows;
+    checked = data.checked || {};
+    rows.forEach((r,i)=>{
+      r.no = r.no || String(i+1).padStart(2,"0");
+      r.rank = rankFor(r.prize);
+      r.createdAt = r.createdAt || i+1;
+      r.qty = Number(r.qty || 1);
+      r.memo = r.memo || "";
+    });
+    saveAll();
+    sortRows(document.getElementById("sort").value);
+  }catch(err){
+    alert("読み込みに失敗しました。JSONファイルを確認してください。");
+  }
+});
+
+async function saveImage({mosaicMemo = false} = {}){
+  const target = document.getElementById("capture");
+
+  document.querySelectorAll(".memoInput").forEach(input=>{
+    const span = document.createElement("span");
+    span.className = mosaicMemo ? "memoMosaic" : "memoText";
+    span.textContent = mosaicMemo ? "＊＊＊＊＊＊＊＊" : (input.value || "");
+    span.dataset.memoPrint = "true";
+    input.style.display = "none";
+    input.parentNode.appendChild(span);
+  });
+
+  const canvas = await html2canvas(target, {
+    scale: 2,
+    backgroundColor: "#fffdf8",
+    ignoreElements: el => el.hasAttribute && (el.hasAttribute("data-html2canvas-ignore") || el.hasAttribute("data-save-ignore"))
+  });
+
+  document.querySelectorAll("[data-memo-print]").forEach(span=>span.remove());
+  document.querySelectorAll(".memoInput").forEach(input=>input.style.display = "");
+
+  const a = document.createElement("a");
+  a.href = canvas.toDataURL("image/png");
+  a.download = mosaicMemo ? "ocha_norma_lucky_draw_checked_memo_hidden.png" : "ocha_norma_lucky_draw_checked.png";
+  a.click();
+}
+
+document.getElementById("savePng").addEventListener("click", ()=>{
+  saveImage({mosaicMemo:false});
+});
+
+document.getElementById("savePngMosaic").addEventListener("click", ()=>{
+  saveImage({mosaicMemo:true});
+});
+
+initSelects();
+applyMemoMaskState();
+sortRows("prize");
+</script>
+</body>
+</html>
