@@ -1376,6 +1376,19 @@ async function saveImage({mosaicMemo = false} = {}){
 
   const target = document.getElementById("capture");
 
+  const originalStyle = {
+    width: target.style.width,
+    maxWidth: target.style.maxWidth,
+    minWidth: target.style.minWidth,
+    margin: target.style.margin
+  };
+
+  // モバイル表示中でも、保存用画像だけはPC幅のレイアウトで作る
+  target.style.width = "1240px";
+  target.style.maxWidth = "1240px";
+  target.style.minWidth = "1240px";
+  target.style.margin = "0 auto";
+
   document.querySelectorAll(".memoInput").forEach(input=>{
     const span = document.createElement("span");
     span.className = mosaicMemo ? "memoMosaic" : "memoText";
@@ -1385,14 +1398,24 @@ async function saveImage({mosaicMemo = false} = {}){
     input.parentNode.appendChild(span);
   });
 
+  await new Promise(resolve => requestAnimationFrame(resolve));
+
   const canvas = await html2canvas(target, {
     scale: 2,
     backgroundColor: "#fffdf8",
+    width: 1240,
+    windowWidth: 1400,
+    windowHeight: Math.max(target.scrollHeight + 200, 1200),
     ignoreElements: el => el.hasAttribute && (el.hasAttribute("data-html2canvas-ignore") || el.hasAttribute("data-save-ignore"))
   });
 
   document.querySelectorAll("[data-memo-print]").forEach(span=>span.remove());
   document.querySelectorAll(".memoInput").forEach(input=>input.style.display = "");
+
+  target.style.width = originalStyle.width;
+  target.style.maxWidth = originalStyle.maxWidth;
+  target.style.minWidth = originalStyle.minWidth;
+  target.style.margin = originalStyle.margin;
 
   const dataUrl = canvas.toDataURL("image/png");
   showImageInPreviewWindow(previewWindow, dataUrl, title);
