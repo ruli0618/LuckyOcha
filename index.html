@@ -391,42 +391,241 @@
   }
 
   @media (max-width:900px){
-    .wrap{padding:14px 10px 34px}
-    .hero{padding:20px 18px; border-radius:22px}
-    .cards{grid-template-columns:1fr}
-    .hint{width:100%; margin-left:0}
-    input, select, button{width:100%; min-width:0}
-    select.long{min-width:0}
-    .toolbar{top:6px; border-radius:20px}
-    table, thead, tbody, tr, th, td{display:block}
-    thead{display:none}
-    tbody tr{
-      border-top:2px solid var(--line);
-      padding:10px;
+    .wrap{
+      padding:10px 8px 32px;
     }
+
+    .hero{
+      padding:16px 16px;
+      border-radius:20px;
+      margin-bottom:10px;
+    }
+
+    h1{
+      font-size:21px;
+      margin-bottom:6px;
+    }
+
+    .subtitle{
+      font-size:14px;
+      line-height:1.45;
+    }
+
+    .cards{
+      grid-template-columns:1fr 1fr;
+      gap:8px;
+      margin:10px 0;
+    }
+
+    .card{
+      border-radius:16px;
+      padding:11px 12px;
+    }
+
+    .card:first-child{
+      grid-column:1 / -1;
+    }
+
+    .card b{
+      font-size:12px;
+      margin-bottom:2px;
+    }
+
+    .card span{
+      font-size:17px;
+    }
+
+    .toolbar, .addbox{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:8px;
+      border-radius:18px;
+      padding:10px;
+      margin-bottom:10px;
+    }
+
+    .toolbar{
+      position:relative;
+      top:auto;
+    }
+
+    button, select, input{
+      width:100%;
+      min-width:0;
+      padding:9px 10px;
+      font-size:13px;
+    }
+
+    .toolbar button:first-child{
+      grid-column:1 / -1;
+      font-size:14px;
+      padding:11px 10px;
+    }
+
+    .toolbar select,
+    .hint{
+      grid-column:1 / -1;
+    }
+
+    .hint{
+      width:100%;
+      margin-left:0;
+      font-size:12px;
+      padding:0 2px;
+    }
+
+    .add-title{
+      grid-column:1 / -1;
+      padding:0 2px;
+      font-size:14px;
+    }
+
+    select.long{
+      min-width:0;
+      grid-column:1 / -1;
+    }
+
+    #addMember{
+      grid-column:1 / 2;
+    }
+
+    #addQty{
+      grid-column:2 / 3;
+    }
+
+    #addOne{
+      grid-column:1 / -1;
+    }
+
+    .tradeTextarea{
+      min-height:110px;
+      max-height:220px;
+      font-size:13px;
+      line-height:1.6;
+      border-radius:14px;
+      padding:10px 12px;
+      grid-column:1 / -1;
+    }
+
+    #copyUncheckedText,
+    #postToTwitter{
+      grid-column:auto;
+    }
+
+    table, thead, tbody, tr, th, td{
+      display:block;
+    }
+
+    thead{
+      display:none;
+    }
+
+    tbody tr{
+      border-top:1px solid var(--line);
+      padding:10px;
+      border-radius:16px;
+      margin:8px;
+      background:#fff;
+      box-shadow:0 4px 12px rgba(31,41,51,.06);
+    }
+
+    tbody tr:nth-child(even){
+      background:#fffaf3;
+    }
+
     tbody td{
       border:0;
-      padding:7px 4px;
+      padding:6px 2px;
+      display:grid;
+      grid-template-columns:6.5em 1fr;
+      gap:8px;
+      align-items:center;
+      font-size:14px;
     }
+
     tbody td::before{
       content:attr(data-label);
-      display:inline-block;
-      width:7em;
       color:var(--muted);
       font-weight:850;
+      font-size:12px;
+      letter-spacing:.02em;
     }
+
     .checkcell{
       text-align:left;
       width:auto;
     }
+
     .checkcell::before{
       content:"交換決まり";
-      display:inline-block;
-      width:7em;
       color:var(--muted);
       font-weight:850;
+      font-size:12px;
     }
-    .actions button{width:auto}
+
+    input[type="checkbox"]{
+      width:24px;
+      height:24px;
+    }
+
+    .member{
+      font-size:16px;
+      white-space:normal;
+    }
+
+    .qty{
+      font-size:16px;
+    }
+
+    .memoInput{
+      min-width:0;
+      border-radius:12px;
+      padding:8px 10px;
+    }
+
+    .actions{
+      display:flex;
+      gap:8px;
+    }
+
+    .actions::before{
+      display:none;
+    }
+
+    .actions button{
+      width:auto;
+      flex:1;
+    }
+
+    .footer{
+      font-size:12px;
+      border-radius:14px;
+      padding:9px 10px;
+    }
+  }
+
+  @media (max-width:430px){
+    .toolbar, .addbox{
+      gap:7px;
+      padding:9px;
+    }
+
+    button, select, input{
+      font-size:12.5px;
+      padding:8px 9px;
+    }
+
+    .toolbar button:first-child{
+      font-size:13.5px;
+    }
+
+    .cards{
+      grid-template-columns:1fr;
+    }
+
+    .card:first-child{
+      grid-column:auto;
+    }
   }
 </style>
 </head>
@@ -460,7 +659,7 @@
       <option value="checked">未交換を上に表示</option>
       <option value="added">追加順で表示</option>
     </select>
-    <div class="hint">賞順＋メンバー順でも並べ替えできます</div>
+    <div class="hint">並べ替え・保存・投稿ができます</div>
   </section>
 
   <section class="addbox" data-html2canvas-ignore="true">
