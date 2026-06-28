@@ -468,6 +468,7 @@
     }
 
     .toolbar select,
+    .toolbar .titleInput,
     .hint{
       grid-column:1 / -1;
     }
@@ -657,6 +658,7 @@
     <input id="fileInput" type="file" accept="application/json" hidden>
     <button id="reset" class="danger">チェック全解除</button>
     <button id="resetAll" class="danger">全部初期化</button>
+    <input id="titleInput" class="titleInput" type="text" placeholder="保存画像タイトル（任意）" aria-label="保存画像タイトル（任意）">
     <select id="sort" aria-label="並べ替え順">
       <option value="prizeItemNo" selected>レアリティ ＞ 商品名 ＞ 序列</option>
       <option value="prizeMember">レアリティ ＞ メンバー順</option>
@@ -1303,6 +1305,10 @@ document.getElementById("toggleMemoMask").addEventListener("click", ()=>{
   applyMemoMaskState();
 });
 
+document.getElementById("titleInput").addEventListener("input", e=>{
+  document.getElementById("collageTitle").textContent = e.target.value.trim();
+});
+
 document.getElementById("addOne").addEventListener("click", addRow);
 document.getElementById("applySort").addEventListener("click", ()=>sortRows(document.getElementById("sort").value));
 
@@ -1335,6 +1341,8 @@ document.getElementById("resetAll").addEventListener("click", ()=>{
   viewRows = [...rows];
 
   document.getElementById("sort").value = "prizeItemNo";
+  document.getElementById("titleInput").value = "";
+  document.getElementById("collageTitle").textContent = "";
   applyMemoMaskState();
   saveAll();
   refreshRowsWithoutSorting();
