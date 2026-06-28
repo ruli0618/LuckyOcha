@@ -637,9 +637,9 @@
   </section>
 
   <section class="cards">
-    <div class="card" style="background:#fff0cf"><b>合計</b><span id="totalCount">8点</span></div>
-    <div class="card" style="background:#edf7ff"><b>賞別</b><span id="prizeSummary">B賞1 / C賞4 / D賞3</span></div>
-    <div class="card" style="background:#f4f1ff"><b>衣装別</b><span id="costumeSummary">ダントツ6 / また恋2</span></div>
+    <div class="card" style="background:#fff0cf"><b>合計</b><span id="totalCount">0点</span></div>
+    <div class="card" style="background:#edf7ff"><b>賞別</b><span id="prizeSummary">-</span></div>
+    <div class="card" style="background:#f4f1ff"><b>衣装別</b><span id="costumeSummary">-</span></div>
   </section>
 
   <section class="toolbar" data-html2canvas-ignore="true">
@@ -741,21 +741,12 @@ const prizeItems = [
   {prize:"E賞", costume:"『ダントツで愛して』衣装", item:"撮りおろしL版ブロマイド 集合", label:"E賞: 『ダントツで愛して』衣装着用撮りおろしL版ブロマイド 集合", forceMember:"集合"}
 ];
 
-const defaultRows = [
-  {id:"b-nishizaki-poster-01", no:"01", prize:"B賞", rank:2, item:"A4クリアポスター", member:"西﨑美空", costume:"『ダントツで愛して』衣装", qty:1, memo:"", createdAt:1, fixed:true},
-  {id:"c-kitagawa-cheki-01", no:"02", prize:"C賞", rank:3, item:"オリジナルチェキ", member:"北原もも", costume:"『ダントツで愛して』衣装", qty:1, memo:"", createdAt:2, fixed:true},
-  {id:"c-kitagawa-cheki-02", no:"03", prize:"C賞", rank:3, item:"オリジナルチェキ", member:"北原もも", costume:"『ダントツで愛して』衣装", qty:1, memo:"", createdAt:3, fixed:true},
-  {id:"c-yonemura-cheki-01", no:"04", prize:"C賞", rank:3, item:"オリジナルチェキ", member:"米村姫良々", costume:"『また、あなたに恋焦がれているんだ』衣装", qty:1, memo:"", createdAt:4, fixed:true},
-  {id:"c-tsutsui-cheki-01", no:"05", prize:"C賞", rank:3, item:"オリジナルチェキ", member:"筒井澪心", costume:"『また、あなたに恋焦がれているんだ』衣装", qty:1, memo:"", createdAt:5, fixed:true},
-  {id:"d-nakayama-bromide-01", no:"06", prize:"D賞", rank:4, item:"撮りおろしL版ブロマイド", member:"中山夏月姫", costume:"『ダントツで愛して』衣装", qty:1, memo:"", createdAt:6, fixed:true},
-  {id:"d-hiromoto-bromide-01", no:"07", prize:"D賞", rank:4, item:"撮りおろしL版ブロマイド", member:"広本瑠璃", costume:"『ダントツで愛して』衣装", qty:1, memo:"", createdAt:7, fixed:true},
-  {id:"d-kubota-bromide-01", no:"08", prize:"D賞", rank:4, item:"撮りおろしL版ブロマイド", member:"窪田七海", costume:"『ダントツで愛して』衣装", qty:1, memo:"", createdAt:8, fixed:true}
-];
+const defaultRows = []
 
-const STORE_ROWS = "ochaLuckyDrawRows_v4_select";
-const STORE_CHECKED = "ochaLuckyDrawChecked_v4_select";
+const STORE_ROWS = "ochaLuckyDrawRows_v5_blank";
+const STORE_CHECKED = "ochaLuckyDrawChecked_v5_blank";
 
-const STORE_MEMO_MASK = "ochaLuckyDrawMemoMask_visible";
+const STORE_MEMO_MASK = "ochaLuckyDrawMemoMask_v5_blank";
 
 let rows = JSON.parse(localStorage.getItem(STORE_ROWS) || "null") || structuredClone(defaultRows);
 let checked = JSON.parse(localStorage.getItem(STORE_CHECKED) || "{}");
@@ -1245,7 +1236,7 @@ document.getElementById("resetAll").addEventListener("click", ()=>{
   localStorage.removeItem(STORE_CHECKED);
   localStorage.removeItem(STORE_MEMO_MASK);
 
-  rows = structuredClone(defaultRows);
+  rows = [];
   checked = {};
   memoMaskVisible = false;
   viewRows = [...rows];
